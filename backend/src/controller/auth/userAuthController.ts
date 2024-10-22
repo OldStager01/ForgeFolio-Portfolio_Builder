@@ -133,6 +133,7 @@ export const userLoginController = async (req: Request, res: Response) => {
                 res.cookie('token', token, { httpOnly: true, secure: true }); // Set cookie in the response
 
                 return res.status(200).json({
+                    _id:query._id,
                     msg: "Login Successful ! ",
                 })
             }
