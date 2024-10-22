@@ -2,13 +2,19 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import Constants from "../../Constants.js";
 import userData from "../../userData";
 import axios from "axios";
-import { useSelector } from "react-redux";
 
 export const refreshData = createAsyncThunk("user/refreshData", async (_id) => {
-  console.log("ID", _id);
-  const response = await axios.get(`${Constants.url}/user/details/${_id}`);
-  console.log("Data Fetched", response.data);
-  return response.data;
+  try {
+    console.log("ID", _id);
+    const response = await fetch(`${Constants.url}/user/details`, {
+      method: "GET",
+      credentials: "include",
+    });
+    console.log("Data Fetched", response.data);
+    return response.data;
+  } catch (error) {
+    console.log("Error", error);
+  }
 });
 
 const userSlice = createSlice({
