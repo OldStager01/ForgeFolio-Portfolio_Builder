@@ -1,20 +1,19 @@
-"use client";
-
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
-import Logo from "../Logo.jsx";
 import LogoBig from "../LogoBig.jsx";
 import Button from "../Button.jsx";
 import Input from "../Input.jsx";
 import Label from "../Label.jsx";
-import { Link } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { login } from "../../redux/slices/authSlice.js";
 import Constants from "../../Constants.js";
-export default function SignupPage() {
+export default function LoginPage() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const {
     register,
     handleSubmit,
@@ -40,6 +39,7 @@ export default function SignupPage() {
   }, [password]);
 
   const onSubmit = async (data) => {
+    console.log("submitting the form...");
     axios
       .post(
         `${Constants.url}/auth/login`,
@@ -52,7 +52,8 @@ export default function SignupPage() {
         }
       )
       .then((response) => {
-        console.log("Response from server", response);
+        console.log("Response from server", response.data);
+        dispatch(login(response.data._id));
         navigate("/profile/personal");
       })
       .catch((e) => {
@@ -125,7 +126,7 @@ export default function SignupPage() {
                     type={showPassword ? "text" : "password"}
                     autoComplete="new-password"
                     required
-                    {...register("password", { required: true, minLength: 8 })}
+                    {...register("password", { required: true, minLength: 5 })}
                   />
                   <button
                     type="button"

@@ -2,18 +2,15 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import Constants from "../../Constants.js";
 import userData from "../../userData";
 import axios from "axios";
-export const fetchUserData = createAsyncThunk(
-  "user/fetchUserData",
-  async () => {
-    // const response = await fetch(`${Constants}/${userId}`);
-    const response = await axios.get(
-      "https://jsonplaceholder.typicode.com/users"
-    );
-    // const data = await response.json();
-    console.log("Data Fetched", response.data);
-    return response.data;
-  }
-);
+import { useSelector } from "react-redux";
+
+export const refreshData = createAsyncThunk("user/refreshData", async (_id) => {
+  console.log("ID", _id);
+  const response = await axios.get(`${Constants.url}/user/details/${_id}`);
+  console.log("Data Fetched", response.data);
+  return response.data;
+});
+
 const userSlice = createSlice({
   name: "user",
   initialState: {
@@ -22,16 +19,25 @@ const userSlice = createSlice({
     error: false,
   },
   reducers: {
-    refreshData: (state, action) => {
-      return { data: { ...userData } };
-    },
+    // refreshData: (state, action) => {
+    //   return { data: { ...userData } };
+    // },
   },
   extraReducers: (builder) => {
-    builder.addCase(fetchUserData.fulfilled, (state, action) => {
-      state = action.payload;
-    });
+    builder
+      .addCase(refreshData.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(refreshData.fulfilled, (state, action) => {
+        state.data = action.payload.userProfile;
+        return state;
+      })
+      .addCase(refreshData.rejected, (state) => {
+        state.loading = false;
+        state.error = true;
+      });
   },
 });
 
-export const { refreshData } = userSlice.actions;
+// export const { refreshData } = userSlice.actions;
 export default userSlice.reducer;

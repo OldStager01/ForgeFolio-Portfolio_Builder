@@ -4,7 +4,7 @@ import Button from "../Button.jsx";
 import Input from "../Input.jsx";
 import Textarea from "../TextArea.jsx";
 import Label from "../Label.jsx";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 export default function Personal() {
   const onSubmit = (data) => {
     console.log(data);
@@ -13,36 +13,48 @@ export default function Personal() {
   const user = useSelector((state) => state.user.data);
   const [isEditing, setIsEditing] = useState(false);
 
+  const dispatch = useDispatch();
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm({
-    defaultValues: {
-      name: user.name || "",
-      email: user.email || "",
-      about: user.about || "",
-      descriptors: user.descriptors || "",
-      avatar: user.avatar || "",
-      github: user.github || "",
-      linkedin: user.linkedin || "",
-      skills: user.skills || "",
-    },
-  });
+  } = useForm(
+    user
+      ? {
+          defaultValues: {
+            name: user.name || "",
+            email: user.email || "",
+            about: user.about || "",
+            descriptors: user.descriptors || "",
+            avatar: user.avatar || "",
+            github: user.github || "",
+            linkedin: user.linkedin || "",
+            skills: user.skills || "",
+          },
+        }
+      : {}
+  );
 
   useEffect(() => {
-    reset({
-      name: user.name || "",
-      email: user.email || "",
-      about: user.about || "",
-      descriptors: user.descriptors || "",
-      avatar: user.avatar || "",
-      github: user.github || "",
-      linkedin: user.linkedin || "",
-      skills: user.skills || "",
-    });
-  }, [userPersonalData, reset, user]);
+    console.log("Data in store", user);
+
+    reset(
+      user
+        ? {
+            name: user.name || "",
+            email: user.email || "",
+            about: user.about || "",
+            descriptors: user.descriptors || "",
+            avatar: user.avatar || "",
+            github: user.github || "",
+            linkedin: user.linkedin || "",
+            skills: user.skills || "",
+          }
+        : {}
+    );
+  }, [reset, user, dispatch]);
 
   return (
     <>
@@ -56,10 +68,10 @@ export default function Personal() {
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="h-5 w-5 mr-2 "
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-5 w-5 mr-2 "
             >
               <path d="m10 10-6.157 6.162a2 2 0 0 0-.5.833l-1.322 4.36a.5.5 0 0 0 .622.624l4.358-1.323a2 2 0 0 0 .83-.5L14 13.982" />
               <path d="m12.829 7.172 4.359-4.346a1 1 0 1 1 3.986 3.986l-4.353 4.353" />

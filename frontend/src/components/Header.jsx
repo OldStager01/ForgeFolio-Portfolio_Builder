@@ -1,9 +1,12 @@
 import Button from "./Button.jsx";
 import Logo from "./Logo.jsx";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { refreshData } from "../redux/slices/userSlice.js";
+
 export default function Header() {
   const dispatch = useDispatch();
+  const _id = useSelector((state) => state.auth._id); // Moved outside the handler
+
   return (
     <>
       <header className="flex items-center justify-between p-4 bg-background text-foreground">
@@ -11,7 +14,13 @@ export default function Header() {
           <Logo className="m-0" />
         </div>
         <Button variant="outline">Visit Portfolio</Button>
-        <Button onClick={() => dispatch(refreshData())}>Refresh</Button>
+        <Button
+          onClick={() => {
+            dispatch(refreshData(_id)); // Now we use _id here
+          }}
+        >
+          Refresh
+        </Button>
         <div className="flex items-center">
           <span className="mr-2 text-sm">Username</span>
           <svg
