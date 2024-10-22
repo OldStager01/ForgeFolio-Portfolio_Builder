@@ -1,0 +1,19 @@
+ <svg
+    className=" h-8 w-8 text-primary"
+    fill="none"
+    height="24"
+    stroke="white"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth="2"
+    viewBox="0 0 24 24"
+    width="24"
+    xmlns="http://www.w3.org/2000/svg"
+
+    >
+    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z" />
+    <path d="M10 2v20" />
+    <path d="m14 8 3-3" />
+    <path d="m14 12 3-3" />
+    <path d="m14 16 3-3" />
+</svg>
