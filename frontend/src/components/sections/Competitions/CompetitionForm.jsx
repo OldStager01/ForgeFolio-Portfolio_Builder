@@ -4,8 +4,13 @@ import Button from "../../Button.jsx";
 import Input from "../../Input.jsx";
 import Label from "../../Label.jsx";
 import TextArea from "../../TextArea.jsx";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import sendFormData from "../../../utils/sendFormData.js";
+import Constants from "../../../Constants.js";
+import { useDispatch } from "react-redux";
 export default function CompetitionsForm() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const location = useLocation();
   const { competition, operation } = location.state || {};
   const {
@@ -48,14 +53,36 @@ export default function CompetitionsForm() {
 
   const onSubmitForm = (data) => {
     console.log("Submit form: ", data);
-  };
-
-  const isValidUrl = (url) => {
-    try {
-      new URL(url);
-      return true;
-    } catch (e) {
-      return false;
+    if (operation == "edit") {
+      console.log("Editing form: ", data);
+      try {
+        sendFormData(
+          `${Constants.url}${Constants.endpoints.user.updateCompetition}/${competition._id}`,
+          data,
+          "PUT"
+        ).then((res) => {
+          if (res) {
+            dispatch(refreshData());
+          }
+        });
+      } catch (e) {
+        console.log(e);
+      }
+    } else {
+      console.log("Added", data);
+      try {
+        sendFormData(
+          `${Constants.url}${Constants.endpoints.user.addCompetition}`,
+          data
+        ).then((res) => {
+          if (res) {
+            dispatch(refreshData());
+            navigate("/profile/competitions");
+          }
+        });
+      } catch (e) {
+        console.log(e);
+      }
     }
   };
 

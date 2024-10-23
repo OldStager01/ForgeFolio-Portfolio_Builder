@@ -1,7 +1,13 @@
 import React from "react";
 import { useForm, Controller } from "react-hook-form";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { refreshData } from "../../../redux/slices/userSlice.js";
 import Button from "../../Button";
+import Input from "../../Input";
+import Label from "../../Label";
+import sendFormData from "../../../utils/sendFormData.js";
+import Constants from "../../../Constants.js";
 const degreeOptions = [
   "High School Diploma",
   "GCSE",
@@ -24,7 +30,9 @@ const degreeOptions = [
 ];
 
 export default function EducationForm() {
+  const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
   const { education, operation } = location.state || {};
   const {
     register,
@@ -46,7 +54,37 @@ export default function EducationForm() {
   );
 
   const onSubmitForm = (data) => {
-    console.log("Submit form: ", data);
+    if (operation == "edit") {
+      console.log("Editing form: ", data);
+      try {
+        sendFormData(
+          `${Constants.url}${Constants.endpoints.user.updateEducation}/${education._id}`,
+          data,
+          "PUT"
+        ).then((res) => {
+          if (res) {
+            console.log("Education Updated: ");
+            dispatch(refreshData());
+          }
+        });
+      } catch (error) {}
+    } else {
+      console.log("Added", data);
+      try {
+        sendFormData(
+          `${Constants.url}${Constants.endpoints.user.addEducation}`,
+          data
+        ).then((res) => {
+          if (res) {
+            console.log("Education Added: ");
+            dispatch(refreshData());
+            navigate("/profile/education");
+          }
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
   };
 
   return (
@@ -62,21 +100,16 @@ export default function EducationForm() {
 
       <div className="space-y-6">
         <div>
-          <label
-            htmlFor="collegeName"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-200"
-          >
-            College Name
-          </label>
-          <input
+          <Label htmlFor="collegeName">College Name</Label>
+          <Input
             type="text"
             id="collegeName"
             {...register("collegeName", {
               required: "College name is required",
             })}
-            className={`mt-1 block w-full rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm
-              ${errors.collegeName ? "border-red-500" : "border-gray-300"}
-              dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
+            className={`${
+              errors.collegeName ? "border-red-500" : "border-gray-300"
+            }`}
           />
           {errors.collegeName && (
             <p className="mt-1 text-sm text-red-500">
@@ -86,24 +119,19 @@ export default function EducationForm() {
         </div>
 
         <div>
-          <label
-            htmlFor="degree"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-200"
-          >
-            Degree
-          </label>
+          <Label htmlFor="degree">Degree</Label>
           <Controller
             name="degree"
             control={control}
             rules={{ required: "Degree is required" }}
             render={({ field }) => (
               <div className="relative mt-1">
-                <input
+                <Input
                   {...field}
                   list="degree-options"
-                  className={`block w-full rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm
-                    ${errors.degree ? "border-red-500" : "border-gray-300"}
-                    dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
+                  className={`${
+                    errors.degree ? "border-red-500" : "border-gray-300"
+                  }`}
                 />
                 <datalist id="degree-options">
                   {degreeOptions.map((option, index) => (
@@ -119,19 +147,12 @@ export default function EducationForm() {
         </div>
 
         <div>
-          <label
-            htmlFor="place"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-200"
-          >
-            Place
-          </label>
-          <input
+          <Label htmlFor="place">Place</Label>
+          <Input
             type="text"
             id="place"
             {...register("place", { required: "Place is required" })}
-            className={`mt-1 block w-full rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm
-              ${errors.place ? "border-red-500" : "border-gray-300"}
-              dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
+            className={`${errors.place ? "border-red-500" : "border-gray-300"}`}
           />
           {errors.place && (
             <p className="mt-1 text-sm text-red-500">{errors.place.message}</p>
@@ -139,13 +160,8 @@ export default function EducationForm() {
         </div>
 
         <div>
-          <label
-            htmlFor="duration"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-200"
-          >
-            Duration
-          </label>
-          <input
+          <Label htmlFor="duration">Duration</Label>
+          <Input
             type="text"
             id="duration"
             {...register("duration", {
@@ -156,9 +172,9 @@ export default function EducationForm() {
               },
             })}
             placeholder="YYYY-YYYY"
-            className={`mt-1 block w-full rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm
-              ${errors.duration ? "border-red-500" : "border-gray-300"}
-              dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
+            className={`${
+              errors.duration ? "border-red-500" : "border-gray-300"
+            }`}
           />
           {errors.duration && (
             <p className="mt-1 text-sm text-red-500">
@@ -168,13 +184,8 @@ export default function EducationForm() {
         </div>
 
         <div>
-          <label
-            htmlFor="percentage"
-            className="block text-sm font-medium text-gray-700 dark:text-gray-200"
-          >
-            Percentage (optional)
-          </label>
-          <input
+          <Label htmlFor="percentage">Percentage (optional)</Label>
+          <Input
             type="number"
             id="percentage"
             step="0.1"
@@ -185,9 +196,9 @@ export default function EducationForm() {
                   "Please enter a valid percentage (up to 2 decimal places)",
               },
             })}
-            className={`mt-1 block w-full rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm
-              ${errors.percentage ? "border-red-500" : "border-gray-300"}
-              dark:bg-gray-700 dark:border-gray-600 dark:text-white`}
+            className={`${
+              errors.percentage ? "border-red-500" : "border-gray-300"
+            }`}
           />
           {errors.percentage && (
             <p className="mt-1 text-sm text-red-500">

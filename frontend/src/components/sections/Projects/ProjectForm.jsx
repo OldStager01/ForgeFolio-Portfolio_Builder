@@ -6,6 +6,10 @@ import Input from "../../Input.jsx";
 import Label from "../../Label.jsx";
 import TextArea from "../../TextArea.jsx";
 import { useLocation } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { refreshData } from "../../../redux/slices/userSlice.js";
+import sendFormData from "../../../utils/sendFormData.js";
+import Constants from "../../../Constants.js";
 const commonTechnologies = [
   "React",
   "Vue",
@@ -34,6 +38,7 @@ const commonTechnologies = [
 
 export default function ProjectsForm() {
   const location = useLocation();
+  const dispatch = useDispatch();
   const { project, operation } = location.state || {};
   const {
     register,
@@ -62,8 +67,16 @@ export default function ProjectsForm() {
   const watchImages = watch("images");
 
   const handleTechnologyAdd = (tech) => {
-    if (tech && !watchTechnologies.includes(tech)) {
-      setValue("technologies", [...watchTechnologies, tech]);
+    if (tech) {
+      // If watchTechnologies is not an array, initialize it as an empty array
+      const currentTechnologies = Array.isArray(watchTechnologies)
+        ? watchTechnologies
+        : [];
+
+      // Only add the technology if it's not already in the list
+      if (!currentTechnologies.includes(tech)) {
+        setValue("technologies", [...new Set([...currentTechnologies, tech])]);
+      }
     }
   };
 
@@ -76,11 +89,20 @@ export default function ProjectsForm() {
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
+
+    // Filter valid image files (images less than or equal to 2MB)
     const validFiles = files.filter(
       (file) => file.type.startsWith("image/") && file.size <= 2 * 1024 * 1024
     );
+
+    // Create object URLs for the valid files
     const newImages = validFiles.map((file) => URL.createObjectURL(file));
-    setValue("images", [...watchImages, ...newImages]);
+
+    // Ensure watchImages is an array (initialize as empty array if undefined)
+    const currentImages = Array.isArray(watchImages) ? watchImages : [];
+
+    // Set the updated images array
+    setValue("images", [...currentImages, ...newImages]);
   };
 
   const handleImageDelete = (index) => {
@@ -93,8 +115,35 @@ export default function ProjectsForm() {
   const onSubmitForm = (data) => {
     if (operation == "edit") {
       console.log("Edit project", data);
+      sendFormData(
+        `${Constants.url}${Constants.endpoints.user.updateProject}/${project._id}`,
+        data,
+        "PUT"
+      )
+        .then((res) => {
+          if (res) {
+            console.log("Project Updated: ");
+            dispatch(refreshData());
+          }
+        })
+        .catch((e) => {
+          console.log(e);
+        });
     } else {
       console.log("Add project", data);
+      sendFormData(
+        `${Constants.url}${Constants.endpoints.user.addProject}`,
+        data
+      )
+        .then((res) => {
+          if (res) {
+            console.log("Project Added: ");
+            dispatch(refreshData());
+          }
+        })
+        .catch((e) => {
+          console.log(e);
+        });
     }
   };
 

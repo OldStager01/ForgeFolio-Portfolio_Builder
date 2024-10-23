@@ -6,6 +6,7 @@ export default function ({ course, ...props }) {
   const navigate = useNavigate();
 
   const onEdit = (course) => {
+    console.log(course);
     if (course) {
       navigate(`/profile/courses/form`, {
         state: {

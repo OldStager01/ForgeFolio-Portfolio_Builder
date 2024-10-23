@@ -5,15 +5,43 @@ import Input from "../Input.jsx";
 import Textarea from "../TextArea.jsx";
 import Label from "../Label.jsx";
 import { useSelector, useDispatch } from "react-redux";
+import { refreshData } from "../../redux/slices/userSlice.js";
+import sendFormData from "../../utils/sendFormData.js";
+import Constants from "../../Constants.js";
 export default function Personal() {
-  const onSubmit = (data) => {
-    console.log(data);
+  const dispatch = useDispatch();
+  const onSubmit = async (data) => {
+    const { file, ...userData } = data;
+    try {
+      //Upload text data
+      const response1 = await sendFormData(
+        `${Constants.url}${Constants.endpoints.user.updateProfile}`,
+        userData,
+        "PUT"
+      );
+
+      //Upload file
+      const avatarData = new FormData();
+      avatarData.append("file", file && file[0]);
+      const response2 = await sendFormData(
+        `${Constants.url}${Constants.endpoints.user.updateAvatar}`,
+        avatarData,
+        "PUT",
+        {
+          "Content-Type": "multipart/form-data",
+        }
+      );
+      if (response1 && response2) {
+        dispatch(refreshData(data._id));
+        setIsEditing(false);
+      }
+    } catch (error) {
+      console.error("Error", error);
+    }
   };
 
   const user = useSelector((state) => state.user.data);
   const [isEditing, setIsEditing] = useState(false);
-
-  const dispatch = useDispatch();
 
   const {
     register,
@@ -28,7 +56,7 @@ export default function Personal() {
             email: user.email || "",
             about: user.about || "",
             descriptors: user.descriptors || "",
-            avatar: user.avatar || "",
+            file: user.file || "",
             github: user.github || "",
             linkedin: user.linkedin || "",
             skills: user.skills || "",
@@ -47,7 +75,7 @@ export default function Personal() {
             email: user.email || "",
             about: user.about || "",
             descriptors: user.descriptors || "",
-            avatar: user.avatar || "",
+            file: user.file || "",
             github: user.github || "",
             linkedin: user.linkedin || "",
             skills: user.skills || "",
@@ -177,14 +205,14 @@ export default function Personal() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="avatar">Upload Avatar</Label>
+          <Label htmlFor="file">Upload Avatar</Label>
           <Input
-            id="avatar"
+            id="file"
             type="file"
             accept="image/*"
             disabled={!isEditing}
             className={`${isEditing ? "" : "cursor-not-allowed bg-slate-200"}`}
-            {...register("avatar")}
+            {...register("file")}
           />
         </div>
 

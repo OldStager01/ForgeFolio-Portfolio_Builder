@@ -3,19 +3,21 @@ import Constants from "../../Constants.js";
 import userData from "../../userData";
 import axios from "axios";
 
-export const refreshData = createAsyncThunk("user/refreshData", async (_id) => {
-  try {
-    console.log("ID", _id);
-    const response = await fetch(`${Constants.url}/user/details`, {
-      method: "GET",
-      credentials: "include",
-    });
-    console.log("Data Fetched", response.data);
-    return response.data;
-  } catch (error) {
-    console.log("Error", error);
+export const refreshData = createAsyncThunk(
+  "user/refreshData",
+  async (_id = null) => {
+    try {
+      console.log("ID", _id);
+      const response = await axios.get(`${Constants.url}/user/details`, {
+        withCredentials: true,
+      });
+      console.log("Data Fetched", response.data);
+      return response.data;
+    } catch (error) {
+      console.log("Error", error);
+    }
   }
-});
+);
 
 const userSlice = createSlice({
   name: "user",
@@ -33,14 +35,18 @@ const userSlice = createSlice({
     builder
       .addCase(refreshData.pending, (state) => {
         state.loading = true;
+        return state;
       })
       .addCase(refreshData.fulfilled, (state, action) => {
         state.data = action.payload.userProfile;
+        state.loading = false;
+        state.error = false;
         return state;
       })
       .addCase(refreshData.rejected, (state) => {
         state.loading = false;
         state.error = true;
+        return state;
       });
   },
 });

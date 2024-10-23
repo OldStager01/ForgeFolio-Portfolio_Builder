@@ -4,10 +4,16 @@ import Button from "../../Button.jsx";
 import Input from "../../Input.jsx";
 import Label from "../../Label.jsx";
 import TextArea from "../../TextArea.jsx";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { refreshData } from "../../../redux/slices/userSlice.js";
+import sendFormData from "../../../utils/sendFormData.js";
+import Constants from "../../../Constants.js";
 export default function ExtracurricularForm() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const location = useLocation();
-  const { activity, operation } = location.state;
+  const { activity, operation } = location.state || {};
   const {
     register,
     handleSubmit,
@@ -29,9 +35,40 @@ export default function ExtracurricularForm() {
   const onSubmitForm = (data) => {
     if (operation == "edit") {
       console.log("Editing form: ", data);
+      try {
+        sendFormData(
+          `${Constants.url}${Constants.endpoints.user.updateExtracurricular}/${activity._id}`,
+          data,
+          "PUT"
+        ).then((res) => {
+          if (res) {
+            dispatch(refreshData());
+          }
+        });
+      } catch (e) {
+        if (e) {
+          console.log(e);
+        }
+      }
     } else {
       console.log("Added", data);
+      try {
+        sendFormData(
+          `${Constants.url}${Constants.endpoints.user.addExtracurricular}`,
+          data
+        ).then((res) => {
+          if (res) {
+            dispatch(refreshData());
+          }
+        });
+      } catch (e) {
+        if (e) {
+          console.log(e);
+        }
+      }
     }
+
+    navigate("/profile/extracurricular");
   };
 
   return (
@@ -92,12 +129,7 @@ export default function ExtracurricularForm() {
       </div>
 
       <div>
-        <label
-          htmlFor="description"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-200"
-        >
-          Description
-        </label>
+        <Label htmlFor="description">Description</Label>
         <TextArea
           id="description"
           {...register("description", {
@@ -113,7 +145,7 @@ export default function ExtracurricularForm() {
           }`}
         ></TextArea>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          {watch("description").length}/200 characters
+          {watch("description") && watch("description").length}/200 characters
         </p>
         {errors.description && (
           <p className="mt-1 text-sm text-red-500">

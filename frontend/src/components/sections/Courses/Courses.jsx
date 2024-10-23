@@ -62,7 +62,7 @@ export default function CoursesSection({}) {
         <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-6">
           {courses &&
             courses.map((course, index) => (
-              <CourseCard key={course.id || index} course={course} />
+              <CourseCard key={course._id} course={course} />
             ))}
         </div>
       </div>

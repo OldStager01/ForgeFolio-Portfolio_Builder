@@ -6,17 +6,24 @@ import { refreshData } from "./redux/slices/userSlice.js";
 import { useSelector, useDispatch } from "react-redux";
 
 function App() {
-  const _id = useSelector((state) => state.auth._id);
+  const { loading, error } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   useEffect(() => {
-    dispatch(refreshData(_id));
+    dispatch(refreshData());
   }, [dispatch]);
-  return (
-    <>
-      <Header />
-      <Outlet />
-    </>
-  );
+
+  if (loading && !error) {
+    return <h1>Loading...</h1>;
+  } else if (!loading && !error) {
+    return (
+      <>
+        <Header />
+        <Outlet />
+      </>
+    );
+  } else {
+    return <h1>Error</h1>;
+  }
 }
 
 export default App;

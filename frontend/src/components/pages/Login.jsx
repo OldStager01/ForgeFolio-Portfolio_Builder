@@ -54,20 +54,7 @@ export default function LoginPage() {
       .then((response) => {
         console.log("Response from server", response.data);
         dispatch(login(response.data._id));
-
-        fetch(`${Constants.url}/user/details`, {
-          method: "GET",
-          credentials: "include",
-        })
-          .then((res) => {
-            console.log("Data Fetched", response.data);
-            return response.data;
-          })
-          .catch((e) => {
-            console.log("Error", e);
-          });
-
-        // navigate("/profile/personal");
+        navigate("/profile/personal");
       })
       .catch((e) => {
         alert("Failed to login");

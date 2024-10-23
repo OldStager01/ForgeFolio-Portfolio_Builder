@@ -5,7 +5,10 @@ import Button from "../../Button.jsx";
 import Input from "../../Input.jsx";
 import Label from "../../Label.jsx";
 import TextArea from "../../TextArea.jsx";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import sendFormData from "../../../utils/sendFormData.js";
+import Constants from "../../../Constants.js";
 const commonTechnologies = [
   "HTML",
   "CSS",
@@ -36,6 +39,8 @@ const commonTechnologies = [
 
 export default function CoursesForm() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { course, operation } = location.state;
 
   const {
@@ -76,7 +81,36 @@ export default function CoursesForm() {
   };
 
   const onSubmitForm = (data) => {
-    onSubmit(data);
+    if (operation == "edit") {
+      try {
+        sendFormData(
+          `${Constants.url}${Constants.endpoints.user.updateCourse}/${course._id}`,
+          data,
+          "POST"
+        ).then((res) => {
+          if (res) {
+            console.log("Course Updated: ");
+            dispatch(refreshData());
+          }
+        });
+      } catch (e) {
+        console.log(e);
+      }
+    } else {
+      try {
+        sendFormData(
+          `${Constants.url}${Constants.endpoints.user.addCourse}`,
+          data
+        ).then((res) => {
+          if (res) {
+            dispatch(refreshData());
+          }
+        });
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    navigate("/profile/courses");
   };
 
   return (
